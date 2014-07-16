@@ -38,10 +38,7 @@ func main(){
    base.Info("start ...")
     WatchPath = base.Cfg.MustValue("base", "path", "") 
     // 第一次运行先读一次
-    err := showDir(WatchPath)
-    if err != nil {
-        base.Error(err)
-    }
+    showDir(WatchPath)
     // 启用监控
     p, err := filepath.Abs(WatchPath)
     if err != nil {
@@ -118,7 +115,7 @@ func readFile(fileName string){
     // 计算利润杠杆
     lever, err := GetLever(GetLeverPrev(symbol))
     if err != nil {
-        base.Error("对应杠杆不存在:", symbol)
+        base.Error("对应杠杆不存在:", symbol, err)
         return
     }
 
@@ -201,14 +198,17 @@ func readFile(fileName string){
 }
 
 // 遍历文件夹
-func showDir(pathStr string) error{
-    return filepath.Walk(pathStr, func(p string, f os.FileInfo, err error) error{
+func showDir(pathStr string){
+    filepath.Walk(pathStr, func(p string, f os.FileInfo, err error) error{
         if f == nil {
             return err
         }
+
+        base.Info("遍历文件：", p)
     
         if !checkFile(p){
-            return errors.New("不是日志文件")
+            base.Warn("不是日志文件", p)
+            return nil
         }
     
         if f.IsDir(){
