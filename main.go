@@ -31,7 +31,7 @@ func init(){
     M.NewXorm()
 
     // 预存杠杆
-    prestoreLever()
+    leverMap = make(map[string]int64, 0)
 }
 
 func main(){
@@ -262,14 +262,6 @@ func GetLever(symbol_pre string) (lever int64, err error){
     leverMap[symbol_pre] = lever
 
     return
-}
-// 预存杠杆数据
-func prestoreLever(){
-    conn := M.RedisPool.Get()
-    defer conn.Close()
-
-
-    
 }
 
 // 取品种前缀
