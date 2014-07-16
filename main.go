@@ -38,7 +38,10 @@ func main(){
    base.Info("start ...")
     WatchPath = base.Cfg.MustValue("base", "path", "") 
     // 第一次运行先读一次
-    showDir(WatchPath)
+    err := showDir(WatchPath)
+    if err != nil {
+        base.Error(err)
+    }
     // 启用监控
     p, err := filepath.Abs(WatchPath)
     if err != nil {
@@ -198,7 +201,7 @@ func readFile(fileName string){
 }
 
 // 遍历文件夹
-func showDir(pathStr string){
+func showDir(pathStr string) error{
     filepath.Walk(pathStr, func(p string, f os.FileInfo, err error) error{
         if f == nil {
             return err
