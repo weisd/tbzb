@@ -213,7 +213,7 @@ func showDir(pathStr string){
             return nil
         }
     
-        base.Info(p,f)
+        readFile(p)
     
         return nil 
     })
