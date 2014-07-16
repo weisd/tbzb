@@ -150,7 +150,8 @@ func SaveZhiboRecord(info map[string]string) (rid int64, err error) {
     }
     */
 
-    loc, _ := time.LoadLocation("")
+//    loc, err := time.LoadLocation("GMT")
+    loc := time.FixedZone("GMT", 28800)
     dateTime , err := time.ParseInLocation("2006-01-02 15:04:05", datetimeStr, loc)
     if err != nil {
         return

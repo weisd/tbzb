@@ -4,6 +4,7 @@ import(
     "time"
     "fmt"
     "errors"
+    "strconv"
     "github.com/weisd/tbzb/base"
     "github.com/garyburd/redigo/redis"
 )
@@ -63,7 +64,7 @@ func Mysql2Redis(mysqlId int64) (err error){
     record := new(ZhiboRecord)
     ok, err := Engine.Id(mysqlId).Get(record)
     if err != nil || !ok {
-        err = errors.New("mysql记录不存在:"+err.Error())
+        err = errors.New("mysql记录不存在:")
         return
     }
 
@@ -102,39 +103,43 @@ func Mysql2Redis(mysqlId int64) (err error){
     args = append(args, "symbol_pre", record.SymbolPre)
     args = append(args, "time", record.Time.Format("2006-01-02 15:04:05"))
     args = append(args, "action", record.Action)
-    args = append(args, "number", record.Number)
-    args = append(args, "price", record.Price)
-    args = append(args, "entry_price", record.EntryPrice)
-    args = append(args, "now_position", record.NowPosition)
-    args = append(args, "bar_num", record.BarNum)
-    args = append(args, "profit", record.Profit)
-    args = append(args, "is_profit", record.IsProfit)
-    args = append(args, "lever", record.Lever)
-    args = append(args, "add_time", record.AddTime)
+    args = append(args, "number", strconv.FormatInt(record.Number, 10))
+    args = append(args, "price", fmt.Sprintf("%.2f", record.Price))
+    args = append(args, "entry_price", fmt.Sprintf("%.2f", record.EntryPrice))
+    args = append(args, "now_position", fmt.Sprintf("%d", record.NowPosition))
+    args = append(args, "bar_num", fmt.Sprintf("%d",record.BarNum))
+    args = append(args, "profit", fmt.Sprintf("%.2f", record.Profit))
+    args = append(args, "is_profit", strconv.FormatBool(record.IsProfit))
+    args = append(args, "lever", fmt.Sprintf("%d",record.Lever))
+    args = append(args, "add_time", record.AddTime.Format("2006-01-02 15:04:05"))
     
 
 
-    ok , err = redis.Bool(conn.Do("HMSET", args...))
-    if err != nil || !ok {
+    _ , err = redis.String(conn.Do("HMSET", args...))
+    if err != nil{
         return
     }
+        base.Info("写入reids hash成功")
 
     // 写入记录总表
     ok , err = RedisSave2AllRecord(record.Time.Unix(), rid)
     if err != nil || !ok {
         return 
     }
+        base.Info("写入reids 总记录成功")
 
     // 写入记录对应表
     ok , err = RedisSave2SymoblRecord(record.Time.Unix(), rid, record.SymbolPre)
     if err != nil || !ok {
         return 
     }
+        base.Info("写入reids 类记录成功")
     // 写入已存在表
     ok, err = RedisSaveExists(record.FormulaName, record.SymbolPre, record.Action, record.Time.Format("20060102150405"))
     if err != nil || !ok {
         return 
     }
+        base.Info("写入reids 已存在记录成功")
 
     return
 }
@@ -146,10 +151,14 @@ func GetRecordFeedID() (rid string, err error) {
     defer conn.Close()
 
     // 取id
-    rid, err = redis.String(conn.Do("INCR", "feed:counter"))
+    res, err := conn.Do("INCR", "feed:counter")
     if err != nil {
+        base.Warn(err)
         return
     }
+
+    id := res.(int64)
+    rid = strconv.FormatInt(id, 10)
 
     return rid+"47", nil
 }
