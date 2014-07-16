@@ -1,0 +1,10 @@
+[base]
+path=./TBzhibo
+
+[mysql]
+user=root
+password=sdfsdf
+dbname=tblog
+
+[redis]
+server=127.0.0.1:6379
