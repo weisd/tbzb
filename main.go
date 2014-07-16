@@ -202,7 +202,7 @@ func readFile(fileName string){
 
 // 遍历文件夹
 func showDir(pathStr string) error{
-    filepath.Walk(pathStr, func(p string, f os.FileInfo, err error) error{
+    return filepath.Walk(pathStr, func(p string, f os.FileInfo, err error) error{
         if f == nil {
             return err
         }
