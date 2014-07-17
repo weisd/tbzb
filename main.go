@@ -143,7 +143,7 @@ func readFile(fileName string){
 
         // 过滤重复数据
         if _, has := checkMap[line]; has {
-            base.Error("记录已存在")
+            base.Trace("记录已存在")
             continue
         }
 
