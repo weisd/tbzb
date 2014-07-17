@@ -23,6 +23,7 @@ func NewLogger(mode, config string){
     if err != nil {
         panic(err)
     }
+    SetLevel(3)
 }
 
 // SetLogLevel sets the global log level used by the simple

@@ -32,7 +32,7 @@ func NewXorm(){
         panic(err)
     }
 
-    Engine.ShowSQL = true
+//    Engine.ShowSQL = true
 
     base.Info("mysql connect ok !", Engine)
 

@@ -135,11 +135,16 @@ func Mysql2Redis(mysqlId int64) (err error){
     }
         base.Info("写入reids 类记录成功")
     // 写入已存在表
-    ok, err = RedisSaveExists(record.FormulaName, record.SymbolPre, record.Action, record.Time.Format("20060102150405"))
-    if err != nil || !ok {
+    ok, err = RedisSaveExists(record.FormulaName, record.Symbol, record.Action, record.Time.Format("20060102150405"))
+    if err != nil {
         return 
     }
-        base.Info("写入reids 已存在记录成功")
+    if !ok {
+        err = errors.New("写入已存在表失败")
+        return
+    }
+
+    base.Info("写入已存在表成功")
 
     return
 }
@@ -190,11 +195,10 @@ func RedisSaveExists(fname, symbol, action, time string) (bool, error) {
 }
 
 // 记录是否已存在redis
-func RedisCheckExists(fname, symbol, action, time string) (bool, error) {
+func RedisCheckExists(fname, symbol, action, time string) (ok bool, err error) {
     conn := RedisPool.Get()
     defer conn.Close()
 
     member := fmt.Sprintf("%s_%s_%s_%s", fname, symbol, action, time)
     return redis.Bool(conn.Do("SISMEMBER", "futures.live.result:record", member))
-    
 }

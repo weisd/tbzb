@@ -128,6 +128,10 @@ func readFile(fileName string){
 
     bufReader := bufio.NewReader(f)
 
+    // 定义缓存 数组，过滤重复数据
+
+    checkMap := make(map[string]bool, 0)
+
     L: for{
         line, err := bufReader.ReadString('\n')
         base.Info(line, err)
@@ -136,6 +140,14 @@ func readFile(fileName string){
         }
 
         line = strings.Replace(line, "\r\n", "", -1)
+
+        // 过滤重复数据
+        if _, has := checkMap[line]; has {
+            base.Error("记录已存在")
+            continue
+        }
+
+        checkMap[line] = true
 
         keyVals := strings.Split(line, ";")
         // 格式不对
