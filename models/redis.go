@@ -23,7 +23,7 @@ func RedisInit(){
 // redis 连接池
 func NewRedis(server, pass string) *redis.Pool {
     return &redis.Pool{
-        MaxIdle:3,
+        MaxIdle:100,
         IdleTimeout:240*time.Second,
         Dial:func()(redis.Conn, error){
             c, err := redis.Dial("tcp", server)
